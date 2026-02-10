@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Emergency Alerts | Patient Monitoring</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            background: #f0f6fb;
+        }
+        
+        header {
+            background: #dc3545;
+            padding: 15px 30px;
+            color: white;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0077cc;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .alert-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .alert-critical {
+border-left: 5px solid #dc3545;
+        }
+        
+        .alert-medium {
+            border-left: 5px solid #ffc107;
+        }
+        
+        .alert-resolved {
+            border-left: 5px solid #28a745;
+            opacity: 0.7;
+        }
+        
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .alert-type {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .severity-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .severity-critical {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .severity-medium {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .alert-details {
+            color: #666;
+            margin: 10px 0;
+        }
+        
+        .alert-time {
+            font-size: 13px;
+            color: #999;
+        }
+        
+        .resolve-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .resolve-btn:hover {
+            background: #218838;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .empty-state h3 {
+            color: #28a745;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-critical { color: #dc3545; }
+        .stat-medium { color: #ffc107; }
+        .stat-resolved { color: #28a745; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🚨 Emergency Alerts</h1>
+</header>
+
+<div class="container">
+    <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+    
+    <div class="stats">
+        <div class="stat-card">
+            <div>Critical Alerts</div>
+            <div class="stat-number stat-critical">
+                {{ alerts|selectattr('severity', 'equalto', 'critical')|selectattr('is_resolved', 'equalto', 0)|list|length }}
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div>Medium Priority</div>
+            <div class="stat-number stat-medium">
+                {{ alerts|selectattr('severity', 'equalto', 'medium')|selectattr('is_resolved', 'equalto', 0)|list|length }}
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div>Resolved</div>
+            <div class="stat-number stat-resolved">
+                {{ alerts|selectattr('is_resolved', 'equalto', 1)|list|length }}
+            </div>
+        </div>
+    </div>
+    
+    {% if alerts and alerts|length > 0 %}
+        {% for alert in alerts %}
+        <div class="alert-card {% if alert['is_resolved'] == 1 %}alert-resolved{% elif alert['severity'] == 'critical' %}alert-critical{% else %}alert-medium{% endif %}">
+            <div class="alert-header">
+                <div class="alert-type">
+                    {% if alert['alert_type'] == 'Fall Detected' %}🚨{% elif alert['alert_type'] == 'Prolonged Lying' %}⏰{% else %}⚠️{% endif %}
+                    {{ alert['alert_type'] }}
+                </div>
+                <span class="severity-badge severity-{{ alert['severity'] }}">
+                    {{ alert['severity']|upper }}
+                </span>
+            </div>
+            
+            <div class="alert-details">
+                <strong>Patient:</strong> {{ alert['patient_name'] or 'Unknown' }}<br>
+                <strong>Description:</strong> {{ alert['description'] or 'No description' }}
+            </div>
+            
+            <div class="alert-time">
+                📅 {{ alert['created_at'] }}
+                {% if alert['is_resolved'] == 1 %}
+                    <br>✅ Resolved by {{ alert['resolved_by'] }} on {{ alert['resolved_at'] }}
+                {% endif %}
+            </div>
+            
+            {% if alert['is_resolved'] == 0 %}
+            <div style="margin-top: 15px;">
+                <form method="POST" action="/resolve_alert/{{ alert['id'] }}" style="display: inline;">
+                    <button type="submit" class="resolve-btn">✓ Mark as Resolved</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <h3>✅ No Alerts</h3>
+        <p>All clear! No emergency alerts at this time.</p>
+    </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

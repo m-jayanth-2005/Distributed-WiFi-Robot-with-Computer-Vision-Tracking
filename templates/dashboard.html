@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | Patient Activity Monitoring</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f0f6fb;
+        }
+
+        header {
+            background: #0077cc;
+            padding: 15px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 30px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #0077cc;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .card button {
+            padding: 10px;
+            width: 100%;
+            border: none;
+            border-radius: 6px;
+            background: #0077cc;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .card button:hover {
+            background: #005fa3;
+        }
+
+        /* Video Feed Section Styling */
+        .video-container {
+            margin-top: 30px;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+        }
+
+        .video-container img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: auto;
+        }
+
+        .video-header {
+            background: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #0077cc;
+        }
+
+        .ai-box {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .ai-box h3 {
+            color: #0077cc;
+            margin-bottom: 10px;
+        }
+
+        .btn-stop {
+            background: #cc0000 !important;
+        }
+
+        .btn-stop:hover {
+            background: #a30000 !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>Welcome, {{ user['name'] }}</h2>
+    <a href="/logout">Logout</a>
+</header>
+
+<div class="container">
+
+    <div class="cards">
+        <div class="card">
+            <h3>Live Monitoring</h3>
+            <p>Start real-time patient activity recognition using AI</p>
+            {% if not monitoring %}
+            <button onclick="window.location.href='/start_monitoring'">
+                Start Camera
+            </button>
+            {% else %}
+            <button class="btn-stop" onclick="window.location.href='/dashboard'">
+                Stop Camera
+            </button>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3>Activity Logs</h3>
+            <p>View stored patient activities from database</p>
+            <button onclick="window.location.href='/view_activities'">
+                View Activities
+            </button>
+        </div>
+
+        <div class="card">
+            <h3>Patient Profile</h3>
+            <p>Registered patient details</p>
+            <button onclick="window.location.href='/profile'">
+                View Profile
+            </button>
+        </div>
+
+        <div class="card">
+            <h3>⚙️ Settings</h3>
+            <p>Configure camera and system settings</p>
+            <button onclick="window.location.href='/settings'">
+                System Settings
+            </button>
+        </div>
+    </div>
+
+    {% if monitoring %}
+    <div class="video-container">
+        <div class="video-header">
+            <strong style="color: #0077cc;">🔴 Live Feed Active</strong>
+            <span style="font-size: 12px; color: #666;">Streaming from: http://localhost:5000/video_feed</span>
+        </div>
+        <img src="{{ url_for('video_feed') }}" alt="Live Patient Stream">
+    </div>
+    {% endif %}
+
+    <div class="ai-box">
+        <h3>🧠 AI System Status</h3>
+        <p>
+            CNN-based Human Activity Recognition system is <strong>active</strong> and 
+            continuously monitoring patient posture, movement, and safety. 
+            All detected anomalies are logged to the database automatically.
+        </p>
+    </div>
+
+</div>
+
+<!-- Chat Widget -->
+<div id="chat-widget" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+    <button onclick="toggleChat()" style="width: 60px; height: 60px; border-radius: 30px; background: #0077cc; color: white; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 24px;">💬</button>
+    
+    <div id="chat-window" style="display: none; width: 350px; height: 500px; background: white; border-radius: 12px; position: absolute; bottom: 80px; right: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden;">
+        <div style="background: #0077cc; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between;">
+            Medical Assistant
+            <span onclick="toggleChat()" style="cursor: pointer;">✕</span>
+        </div>
+        <div id="chat-messages" style="flex: 1; padding: 15px; overflow-y: auto; background: #f9f9f9; font-size: 14px;">
+            <div style="margin-bottom: 10px; text-align: left;">
+                <span style="background: #f1f1f1; padding: 8px 12px; border-radius: 12px; display: inline-block;">Hello! I'm your Medical AI. Ask me about the patient's activity history.</span>
+            </div>
+        </div>
+        <div style="padding: 10px; border-top: 1px solid #ddd; display: flex; background: white;">
+            <input type="text" id="chat-input" placeholder="Type a question..." style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; outline: none;">
+            <button onclick="sendMessage()" style="margin-left: 5px; padding: 8px 15px; background: #0077cc; color: white; border: none; border-radius: 4px; cursor: pointer;">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleChat() {
+        const win = document.getElementById('chat-window');
+        win.style.display = win.style.display === 'none' ? 'flex' : 'none';
+    }
+    
+    async function sendMessage() {
+        const input = document.getElementById('chat-input');
+        const msgs = document.getElementById('chat-messages');
+        const text = input.value.trim();
+        if (!text) return;
+        
+        // Add User Message
+        msgs.innerHTML += `<div style="margin-bottom: 10px; text-align: right;"><span style="background: #e1f5fe; padding: 8px 12px; border-radius: 12px; display: inline-block;">${text}</span></div>`;
+        input.value = '';
+        msgs.scrollTop = msgs.scrollHeight;
+        
+        // Loading indicator
+        const loadingId = 'loading-' + Date.now();
+        msgs.innerHTML += `<div id="${loadingId}" style="margin-bottom: 10px; text-align: left;"><span style="background: #f1f1f1; padding: 8px 12px; border-radius: 12px; display: inline-block;">Typing...</span></div>`;
+        msgs.scrollTop = msgs.scrollHeight;
+        
+        try {
+            const res = await fetch('/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({question: text})
+            });
+            const data = await res.json();
+            const reply = data.answer || "Error: " + data.error;
+            
+            // Remove loading and add response
+            document.getElementById(loadingId).remove();
+            
+             // Format bold text
+            const formattedReply = reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+            
+            msgs.innerHTML += `<div style="margin-bottom: 10px; text-align: left;"><span style="background: #f1f1f1; padding: 8px 12px; border-radius: 12px; display: inline-block;">${formattedReply}</span></div>`;
+        } catch (e) {
+            document.getElementById(loadingId).remove();
+            msgs.innerHTML += `<div style="color: red; font-size: 12px;">Connection Error</div>`;
+        }
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+    
+    document.getElementById('chat-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') sendMessage();
+    });
+</script>
+
+</body>
+</html>

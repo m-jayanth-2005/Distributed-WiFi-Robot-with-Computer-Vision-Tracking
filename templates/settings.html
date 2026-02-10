@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings | Patient Monitoring</title>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f0f6fb;
+        }
+
+        header {
+            background: #0077cc;
+            padding: 15px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 30px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            color: #0077cc;
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: #0077cc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #005fa3;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .flash-message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .flash-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .flash-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0077cc;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>System Settings</h2>
+    <a href="/logout">Logout</a>
+</header>
+
+<div class="container">
+    <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card">
+        <h3>📹 Camera Configuration</h3>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="camera_url">Camera URL or Device Index</label>
+                <input type="text" id="camera_url" name="camera_url" value="{{ camera_url }}" required>
+                <div class="help-text">
+                    Examples:<br>
+                    • For laptop webcam: <code>0</code><br>
+                    • For WiFi camera (ESP32-CAM): <code>http://192.168.137.41:81/stream</code><br>
+                    • For external USB camera: <code>1</code> or <code>2</code>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="detection_confidence">Detection Confidence Threshold</label>
+                <input type="number" id="detection_confidence" name="detection_confidence" 
+                       value="{{ detection_confidence }}" 
+                       min="0" max="1" step="0.05" required>
+                <div class="help-text">
+                    Minimum confidence level (0.0 to 1.0) for activity detection. 
+                    Lower values detect more activities but may have false positives.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="alert_enabled" value="1" 
+                           {% if alert_enabled == '1' %}checked{% endif %}>
+                    Enable Emergency Alerts
+                </label>
+                <div class="help-text">
+                    When enabled, the system will generate alerts for unusual activities or emergencies.
+                </div>
+            </div>
+
+            <button type="submit">Save Settings</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>ℹ️ System Information</h3>
+        <p><strong>Current Camera Source:</strong> {{ camera_url }}</p>
+        <p><strong>Detection Threshold:</strong> {{ detection_confidence }}</p>
+        <p><strong>Alerts Status:</strong> 
+            {% if alert_enabled == '1' %}
+                <span style="color: green;">✅ Enabled</span>
+            {% else %}
+                <span style="color: red;">❌ Disabled</span>
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

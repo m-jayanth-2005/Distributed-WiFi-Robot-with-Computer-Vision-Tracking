@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Log | AI Patient Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6; 
+            --primary-dark: #2563eb;
+            --primary-light: #eff6ff;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --danger: #ef4444;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: var(--text-main);
+            margin: 0;
+            padding-bottom: 60px;
+        }
+        
+        /* Modern Header with Glassmorphism */
+        header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 0;
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-dark), #1e40af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: var(--text-muted);
+        }
+        
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        .btn-danger {
+            background: #fef2f2;
+            color: var(--danger);
+            border: 1px solid #fee2e2;
+        }
+
+        .btn-danger:hover {
+            background: #fee2e2;
+            border-color: #fecaca;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 24px;
+        }
+
+        h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 40px 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        /* PREMIUM CARDS */
+        .analysis-card {
+            background: var(--glass-bg);
+            border: 1px solid white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 30px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-meta {
+            padding: 16px 24px;
+            background: rgba(248, 250, 252, 0.5);
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .card-body {
+            padding: 24px;
+        }
+
+        /* Hero Summary */
+        .hero-summary {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            margin-bottom: 24px;
+        }
+
+        .hero-label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+        }
+
+        /* Bento Grid Layout */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .bento-box {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .box-title {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Visual Tags */
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 0 4px 4px 0;
+        }
+
+        .tag-activity { background: #e0f2fe; color: #0369a1; }
+        .tag-risk-High { background: #fee2e2; color: #b91c1c; }
+        .tag-risk-Medium { background: #ffedd5; color: #c2410c; }
+        .tag-risk-Low { background: #dcfce7; color: #15803d; }
+        
+        /* Anomalies */
+        .anomaly-alert {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid var(--danger);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        /* Raw Data - Minimalist */
+        .raw-data-section {
+            border-top: 1px solid #f1f5f9;
+        }
+        
+        .raw-toggle {
+            width: 100%;
+            text-align: left;
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .raw-toggle:hover { color: var(--primary); }
+        
+        .raw-content {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.8rem;
+            margin: 0;
+            overflow-x: auto;
+        }
+
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 400px;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: scale(0.95);
+            transition: transform 0.2s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        .modal-body p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .delete-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .delete-btn {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .delete-btn:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: #fef2f2;
+        }
+        
+        .delete-btn.all-time {
+            border-color: #fee2e2;
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.2;
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div>
+            <h1>Activity Intelligence</h1>
+            <div style="font-size:0.85rem; color:var(--text-muted);">Patient Monitoring Log</div>
+        </div>
+        <div class="header-actions">
+            <a href="/dashboard" class="btn btn-secondary">← Dashboard</a>
+            <button onclick="openDeleteModal()" class="btn btn-danger">Manage Logs</button>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    
+    <!-- Analysis Section -->
+    <h2>Clinical Insight Stream</h2>
+
+    {% if gemini_logs and gemini_logs|length > 0 %}
+        {% for log in gemini_logs %}
+        {% set analysis = log['analysis_text'] | from_json %}
+        
+        <article class="analysis-card">
+            <div class="card-meta">
+                <span>🕒 {{ log['created_at'] }}</span>
+                <span>ID: {{ log['id'] }}</span>
+            </div>
+            
+            <div class="card-body">
+                <div class="hero-summary">
+                    <span class="hero-label">AI Clinical Summary</span>
+                    {{ analysis.get('summary', 'Processing analysis...') }}
+                </div>
+                
+                <div class="bento-grid">
+                    <!-- Risk -->
+                    <div class="bento-box">
+                        <span class="box-title">Risk Level</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span class="tag tag-risk-{{ analysis.get('risk_level', 'Unknown') }}">
+                                {{ analysis.get('risk_level', 'Unknown') }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Activities -->
+                    <div class="bento-box">
+                        <span class="box-title">Primary Activities</span>
+                        <div>
+                        {% for activity in analysis.get('primary_activities', []) %}
+                            <span class="tag tag-activity">{{ activity }}</span>
+                        {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Posture -->
+                    <div class="bento-box">
+                        <span class="box-title">Posture Details</span>
+                        <div style="font-size:0.85rem; color: #475569;">
+                            {{ analysis.get('posture_analysis', 'No posture data.') }}
+                        </div>
+                    </div>
+                    
+                    <!-- Anomalies -->
+                    {% if analysis.get('anomalies') %}
+                    <div class="bento-box" style="grid-column: 1 / -1;">
+                        <span class="box-title" style="color:var(--danger);">⚠️ Anomalies Detected</span>
+                        <div style="display: grid; gap: 8px;">
+                            {% for anomaly in analysis.get('anomalies', []) %}
+                            <div class="anomaly-alert">
+                                <div>
+                                    <strong style="display:block; font-size:0.9rem; color:#991b1b;">
+                                        {{ anomaly.get('type', 'Unknown Type') if anomaly is mapping else anomaly }}
+                                    </strong>
+                                    <span style="font-size:0.85rem; color:#7f1d1d;">
+                                        {{ anomaly.get('description', '') if anomaly is mapping else '' }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Discrete Raw Data -->
+            {% if log['raw_json'] %}
+            <div class="raw-data-section">
+                <details>
+                    <summary class="raw-toggle">View Sensor Telemetry (Raw JSON)</summary>
+                    <pre class="raw-content">{{ log['raw_json'] }}</pre>
+                </details>
+            </div>
+            {% endif %}
+        </article>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <span class="empty-icon">📊</span>
+            <h3>No Analysis Records</h3>
+            <p>Start monitoring to generate AI clinical insights.</p>
+        </div>
+    {% endif %}
+
+</div>
+
+<!-- DELETE MODAL -->
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal">
+        <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+        <div class="modal-header">Manage History</div>
+        <div class="modal-body">
+            <p>Select a time range to clear from the database. This action cannot be undone.</p>
+            
+            <form action="/delete_logs" method="POST" class="delete-options">
+                <button type="submit" name="time_range" value="1" class="delete-btn">
+                    <span>Last 1 Hour</span>
+                    <span>🕒</span>
+                </button>
+                <button type="submit" name="time_range" value="24" class="delete-btn">
+                    <span>Last 24 Hours</span>
+                    <span>📅</span>
+                </button>
+                <button type="submit" name="time_range" value="168" class="delete-btn">
+                    <span>Last 7 Days</span>
+                    <span>awk</span>
+                </button>
+                <button type="submit" name="time_range" value="all" class="delete-btn all-time">
+                    <span>Clear All History</span>
+                    <span>🗑️</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openDeleteModal() {
+        document.getElementById('deleteModal').classList.add('active');
+    }
+    
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+    }
+    
+    // Close on click outside
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+</script>
+
+</body>
+</html>

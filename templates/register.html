@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Patient Registration</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(to right, #e6f3ff, #f9fcff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            width: 650px;          /* ✅ MORE WIDTH */
+            min-height: 380px;     /* LESS HEIGHT */
+            border-radius: 14px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+        }
+
+        h2 {
+            text-align: center;
+            color: #0077cc;
+        }
+
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .row input, .row select {
+            flex: 1;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+        }
+
+        button {
+            background: #0077cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        video {
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+
+        a {
+            color: #0077cc;
+            text-decoration: none;
+        }
+
+        .center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Patient Registration</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p style="color: {% if category == 'error' %}red{% elif category == 'success' %}green{% else %}orange{% endif %}; padding: 10px; background: #f9f9f9; border-radius: 5px; margin: 10px 0;">
+                    {{ message }}
+                </p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/register">
+        <div class="row">
+            <input name="name" placeholder="Patient Name *" required>
+            <input name="age" type="number" placeholder="Age *" required>
+        </div>
+
+        <div class="row">
+            <select name="gender" required>
+                <option value="">Gender *</option>
+                <option>Male</option>
+                <option>Female</option>
+            </select>
+            <input name="phone" placeholder="Phone Number *" required>
+        </div>
+
+        <input name="email" type="email" placeholder="Email (optional)">
+        <input name="address" placeholder="Address (optional)">
+        
+        <div class="row">
+            <input name="emergency_contact" placeholder="Emergency Contact Name">
+            <input name="emergency_phone" placeholder="Emergency Phone">
+        </div>
+
+        <input name="medical_conditions" placeholder="Medical Conditions (optional)">
+        
+        <div class="row">
+            <input name="password" type="password" placeholder="Password *" required>
+            <input name="confirm_password" type="password" placeholder="Confirm Password *" required>
+        </div>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <div class="center">
+        <p>Already registered? <a href="/login">Login</a></p>
+    </div>
+</div>
+
+</body>
+</html>
