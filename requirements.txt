@@ -1,0 +1,18 @@
+# Flask Application Requirements
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# OpenCV for video processing
+opencv-python>=4.5.0
+
+# Database
+# SQLite3 is built into Python
+
+# Additional utilities
+numpy>=1.19.0
+mediapipe>=0.10.0
+google-generativeai
+python-dotenv
+
+# Optional: For production deployment
+gunicorn==21.2.0
